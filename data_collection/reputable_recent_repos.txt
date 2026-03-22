@@ -1,0 +1,57 @@
+# Curated repo list for larger multi-file PR collection.
+# Biased toward reputable orgs, active maintenance, and issue/PR workflows.
+
+# Python / scientific / backend
+astral-sh/uv
+astral-sh/ruff
+pypa/pip
+PrimeIntellect-ai/verifiers
+fastapi/fastapi
+pydantic/pydantic
+encode/httpx
+pallets/flask
+django/django
+python/cpython
+ansible/ansible
+pytest-dev/pytest
+pandas-dev/pandas
+scikit-learn/scikit-learn
+matplotlib/matplotlib
+huggingface/transformers
+pydata/xarray
+celery/celery
+sphinx-doc/sphinx
+sympy/sympy
+
+# AI coding agents / tools
+anomalyco/opencode
+opencode-ai/opencode
+openai/openai-node
+openai/openai-python
+
+# Frontend / web / fullstack
+shadcn-ui/ui
+vercel/next.js
+vercel/turborepo
+vercel/ai
+TanStack/query
+TanStack/table
+TanStack/router
+facebook/react
+facebook/react-native
+vitejs/vite
+vuejs/core
+sveltejs/svelte
+reduxjs/redux-toolkit
+pnpm/pnpm
+nestjs/nest
+angular/angular
+remix-run/react-router
+nuxt/nuxt
+
+# Tooling / editors / runtimes
+microsoft/vscode
+microsoft/typescript
+denoland/deno
+oven-sh/bun
+cli/cli

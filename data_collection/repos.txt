@@ -1,0 +1,18 @@
+# Starter repositories for multi-file PR collection.
+# These are common in SWE-Bench-style or adjacent code-retrieval benchmarks.
+
+django/django
+psf/requests
+pallets/flask
+pytest-dev/pytest
+scikit-learn/scikit-learn
+matplotlib/matplotlib
+pandas-dev/pandas
+sympy/sympy
+ansible/ansible
+huggingface/transformers
+pydata/xarray
+sphinx-doc/sphinx
+celery/celery
+fastapi/fastapi
+python/cpython

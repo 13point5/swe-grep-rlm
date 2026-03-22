@@ -16,4 +16,9 @@ environments/*/outputs/
 # local research references
 /external/ContextBench/
 
+# generated data collection artifacts
+data_collection/__pycache__/
+data_collection/*.csv
+data_collection/*.jsonl
+
 .env
