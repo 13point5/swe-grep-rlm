@@ -1,10 +1,11 @@
 [project]
 name = "swe-grep-rlm"
-description = "Your environment description here"
-tags = ["placeholder-tag", "train", "eval"]
+description = "RLM environment for code-search file retrieval over canonical repo tasks"
+tags = ["rlm", "code-search", "retrieval", "multi-turn", "python", "repl"]
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
+    "datasets>=3.5.0",
     "verifiers>=0.1.11",
 ]
 
@@ -13,8 +14,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["swe_grep_rlm.py", "pyproject.toml"] 
+include = ["*.py", "pyproject.toml"] 
 
 [tool.verifiers.eval]
-num_examples = 5
-rollouts_per_example = 3
+num_examples = 1
+rollouts_per_example = 1

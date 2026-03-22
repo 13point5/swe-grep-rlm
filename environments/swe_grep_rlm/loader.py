@@ -1,0 +1,59 @@
+from __future__ import annotations
+
+from typing import Any
+
+import verifiers as vf
+
+from constants import DEFAULT_DATASET_SPLIT, DEFAULT_SANDBOX_LABEL, SYSTEM_PROMPT
+from dataset import build_dataset
+from environment import CodeSearchRLMEnv
+from rubric import build_rubric
+
+
+def load_environment(
+    dataset_split: str = DEFAULT_DATASET_SPLIT,
+    max_examples: int = -1,
+    shuffle: bool = False,
+    seed: int = 0,
+    system_prompt: str = SYSTEM_PROMPT,
+    max_turns: int = 20,
+    sub_llm_max_turns: int = 3,
+    max_sub_llm_parallelism: int = 4,
+    max_output_length: int = 6000,
+    code_execution_timeout: int = 120,
+    sandbox_docker_image: str = "python:3.11-slim",
+    sandbox_cpu_cores: int = 1,
+    sandbox_memory_gb: int = 2,
+    sandbox_disk_size_gb: int = 5,
+    sandbox_gpu_count: int = 0,
+    sandbox_timeout_minutes: int = 60,
+    sandbox_labels: list[str] | None = None,
+    **kwargs: Any,
+) -> vf.Environment:
+    dataset = build_dataset(
+        split=dataset_split,
+        max_examples=max_examples,
+        shuffle=shuffle,
+        seed=seed,
+    )
+    labels = sorted(dict.fromkeys((sandbox_labels or []) + [DEFAULT_SANDBOX_LABEL]))
+
+    return CodeSearchRLMEnv(
+        dataset=dataset,
+        eval_dataset=dataset,
+        rubric=build_rubric(),
+        system_prompt=system_prompt,
+        max_turns=max_turns,
+        sub_llm_max_turns=sub_llm_max_turns,
+        max_sub_llm_parallelism=max_sub_llm_parallelism,
+        max_output_length=max_output_length,
+        code_execution_timeout=code_execution_timeout,
+        sandbox_docker_image=sandbox_docker_image,
+        sandbox_cpu_cores=sandbox_cpu_cores,
+        sandbox_memory_gb=sandbox_memory_gb,
+        sandbox_disk_size_gb=sandbox_disk_size_gb,
+        sandbox_gpu_count=sandbox_gpu_count,
+        sandbox_timeout_minutes=sandbox_timeout_minutes,
+        sandbox_labels=labels,
+        **kwargs,
+    )

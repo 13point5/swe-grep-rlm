@@ -10,5 +10,10 @@ wheels/
 .venv
 
 # outputs from `prime eval run`
-./outputs
-./environments/*/outputs
+outputs/
+environments/*/outputs/
+
+# local research references
+/external/ContextBench/
+
+.env
