@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 import verifiers as vf
 
-from constants import DEFAULT_DATASET_SPLIT, DEFAULT_SANDBOX_LABEL, SYSTEM_PROMPT
-from dataset import build_dataset
-from environment import CodeSearchRLMEnv
-from rubric import build_rubric
+from .constants import DEFAULT_DATASET_SPLIT, DEFAULT_SANDBOX_LABEL
+from .dataset import build_dataset
+from .environment import CodeSearchRLMEnv
+from .rubric import build_rubric
 
 
 def load_environment(
@@ -15,12 +15,12 @@ def load_environment(
     max_examples: int = -1,
     shuffle: bool = False,
     seed: int = 0,
-    system_prompt: str = SYSTEM_PROMPT,
-    max_turns: int = 20,
+    max_turns: int = 30,
     sub_llm_max_turns: int = 3,
     max_sub_llm_parallelism: int = 4,
     max_output_length: int = 6000,
     code_execution_timeout: int = 120,
+    root_prompt_verbosity: Literal["light", "medium", "heavy"] = "heavy",
     sandbox_docker_image: str = "python:3.11-slim",
     sandbox_cpu_cores: int = 1,
     sandbox_memory_gb: int = 2,
@@ -42,12 +42,12 @@ def load_environment(
         dataset=dataset,
         eval_dataset=dataset,
         rubric=build_rubric(),
-        system_prompt=system_prompt,
         max_turns=max_turns,
         sub_llm_max_turns=sub_llm_max_turns,
         max_sub_llm_parallelism=max_sub_llm_parallelism,
         max_output_length=max_output_length,
         code_execution_timeout=code_execution_timeout,
+        root_prompt_verbosity=root_prompt_verbosity,
         sandbox_docker_image=sandbox_docker_image,
         sandbox_cpu_cores=sandbox_cpu_cores,
         sandbox_memory_gb=sandbox_memory_gb,

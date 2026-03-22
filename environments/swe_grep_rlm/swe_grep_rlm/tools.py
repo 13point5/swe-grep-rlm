@@ -5,7 +5,7 @@ import shlex
 
 import verifiers as vf
 
-from constants import (
+from .constants import (
     DEFAULT_GLOB_LIMIT,
     DEFAULT_READ_LIMIT,
     DEFAULT_RG_LIMIT,
@@ -14,7 +14,7 @@ from constants import (
     MAX_READ_LIMIT,
     MAX_RG_LIMIT,
 )
-from dataset import normalize_relpath
+from .dataset import normalize_relpath, normalize_relpaths
 
 
 class CodeSearchToolMixin:
@@ -23,6 +23,7 @@ class CodeSearchToolMixin:
             self.glob_files,
             self.ripgrep,
             self.read_file_range,
+            self.submit_files,
         ]
 
     def require_root_state(self) -> vf.State:
@@ -73,7 +74,23 @@ class CodeSearchToolMixin:
         limit: int = DEFAULT_GLOB_LIMIT,
         include_hidden: bool = False,
     ) -> list[str]:
-        """List repository files matching a glob pattern inside the sandbox checkout."""
+        """List repo-relative files matching a glob pattern.
+
+        Use this to discover candidate paths by filename or directory shape before
+        reading file contents. It is especially useful for finding tests, docs,
+        configs, and metadata files. Prefer this over broad REPL shelling when you
+        already know something about the path structure.
+
+        Args:
+            pattern: Glob rooted at the repository checkout, such as
+                ``"docs/**/*.md"``, ``"tests/**/*"``, or ``"**/*query*"``.
+            limit: Maximum number of matching files to return.
+            include_hidden: Set to ``True`` when hidden files or directories may
+                matter, such as ``.changeset/*`` or ``.size-limit.json``.
+
+        Returns:
+            A sorted list of repo-relative file paths.
+        """
         state = self.require_root_state()
         repo_root = self.sandbox_repo_dir_for_state(state)
         payload = json.dumps(
@@ -118,7 +135,27 @@ class CodeSearchToolMixin:
         ignore_case: bool = True,
         limit: int = DEFAULT_RG_LIMIT,
     ) -> str:
-        """Search sandbox repository text with ripgrep and return line-numbered matches."""
+        """Search repository text with ripgrep and return line-numbered matches.
+
+        Use this first when you have concrete search terms from the report, such
+        as option names, function names, error strings, symbols, or exact phrases.
+        Narrow the search with ``path`` or ``glob_pattern`` before reading files.
+        If the output is large, tighten the query instead of dumping more text.
+
+        Args:
+            pattern: Text or regex pattern to search for.
+            path: Repo-relative directory or file to search within. Use ``"."``
+                for the whole checkout.
+            glob_pattern: Optional ripgrep ``-g`` filter such as ``"*.py"`` or
+                ``"docs/**/*.md"``.
+            context_lines: Number of surrounding lines to include per match.
+            ignore_case: Whether the search should be case-insensitive.
+            limit: Maximum number of output lines to return before truncation.
+
+        Returns:
+            A newline-delimited string of matches with line numbers, or a short
+            no-match/truncation message.
+        """
         state = self.require_root_state()
         repo_root = self.sandbox_repo_dir_for_state(state)
         relative_path = "." if path.strip() in {"", "."} else normalize_relpath(path)
@@ -166,7 +203,23 @@ class CodeSearchToolMixin:
         end_line: int | None = None,
         num_lines: int = DEFAULT_READ_LIMIT,
     ) -> str:
-        """Read a numbered file slice from the sandbox checkout."""
+        """Read a numbered slice from one repository file.
+
+        Use this only after you have narrowed down to a promising file. Prefer
+        small slices around the relevant symbol or match instead of reading whole
+        files. If you need more context, continue from the follow-up hint in the
+        returned footer.
+
+        Args:
+            file_path: Repo-relative file path to inspect.
+            start_line: First line number to read, inclusive.
+            end_line: Last line number to read, inclusive. If omitted, the tool
+                reads ``num_lines`` starting at ``start_line``.
+            num_lines: Slice length when ``end_line`` is omitted.
+
+        Returns:
+            A formatted snippet with line numbers and continuation hints.
+        """
         state = self.require_root_state()
         repo_root = self.sandbox_repo_dir_for_state(state)
         payload = json.dumps(
@@ -224,3 +277,23 @@ class CodeSearchToolMixin:
             stderr = (getattr(result, "stderr", "") or "").strip()
             raise RuntimeError(stderr or "read_file_range failed.")
         return (getattr(result, "stdout", "") or "").rstrip()
+
+    async def submit_files(self, files: list[str]) -> str:
+        """Finalize the task by submitting repo-relative file paths.
+
+        This is the required completion path for this task. Call it once you have
+        your final file list. The rollout will stop after submission, and the
+        reward will be computed from the submitted paths.
+
+        Args:
+            files: Final repo-relative file paths. Pass only file paths, one list
+                element per file, with no explanations or extra formatting.
+
+        Returns:
+            A short confirmation message summarizing the stored submission.
+        """
+        state = self.require_root_state()
+        normalized_files = normalize_relpaths(str(item) for item in files)
+        state["submitted_files"] = normalized_files
+        state["final_answer"] = "\n".join(normalized_files)
+        return f"Submitted {len(normalized_files)} files."

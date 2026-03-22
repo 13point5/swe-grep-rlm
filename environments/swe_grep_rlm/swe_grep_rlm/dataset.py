@@ -6,7 +6,12 @@ from typing import Any, Iterable
 
 from datasets import Dataset, load_dataset
 
-from constants import HF_DATASET_NAME, DEFAULT_DATASET_SPLIT, DEFAULT_SANDBOX_REPO_DIR
+from .constants import (
+    DEFAULT_DATASET_SPLIT,
+    DEFAULT_SANDBOX_REPO_DIR,
+    HF_DATASET_NAME,
+    TASK_PROMPT_GUIDANCE,
+)
 
 
 def normalize_relpath(path: str) -> str:
@@ -67,6 +72,7 @@ def transform_row(raw_row: dict[str, Any], row_index: int) -> dict[str, Any]:
     prompt = (
         f"Repository: {repo}\n"
         f"Pull request: #{pr_number}\n\n"
+        f"{TASK_PROMPT_GUIDANCE}\n"
         f"Find the relevant repository files for this report:\n\n{question}"
     )
 
@@ -74,7 +80,7 @@ def transform_row(raw_row: dict[str, Any], row_index: int) -> dict[str, Any]:
         "task_id": task_id,
         "task": "code_search_retrieval",
         "prompt": [{"role": "user", "content": prompt}],
-        "answer": gold_files,
+        "answer": "\n".join(gold_files),
         "info": info,
     }
 

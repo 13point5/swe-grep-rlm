@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataset import normalize_relpaths
+from .dataset import normalize_relpaths
 
 
 def parse_result_lines(text: str | None) -> list[str]:

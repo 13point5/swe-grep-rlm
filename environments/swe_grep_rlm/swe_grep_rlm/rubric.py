@@ -1,6 +1,6 @@
 import verifiers as vf
 
-from rewards import (
+from .rewards import (
     exact_match,
     gold_file_count,
     predicted_file_count,

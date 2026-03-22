@@ -1,25 +1,38 @@
 from __future__ import annotations
 
 import shlex
-from typing import Any
+from typing import Any, Literal
 
 from verifiers.envs.experimental.rlm_env import RLMEnv
 
-from constants import DEFAULT_SANDBOX_REPO_DIR, SYSTEM_PROMPT
-from tools import CodeSearchToolMixin
+from .constants import DEFAULT_SANDBOX_REPO_DIR
+from .prompts import build_system_prompt
+from .tools import CodeSearchToolMixin
 
 
 class CodeSearchRLMEnv(CodeSearchToolMixin, RLMEnv):
     def __init__(
         self,
         *,
-        system_prompt: str = SYSTEM_PROMPT,
+        root_prompt_verbosity: Literal["light", "medium", "heavy"] = "heavy",
+        max_turns: int = 30,
+        sub_llm_max_turns: int = 3,
+        max_sub_llm_parallelism: int = 4,
         **kwargs: Any,
     ) -> None:
         super().__init__(
             root_tools=self.build_root_tools(),
             repl_language="python",
-            system_prompt=system_prompt,
+            root_prompt_verbosity=root_prompt_verbosity,
+            system_prompt=build_system_prompt(
+                root_prompt_verbosity=root_prompt_verbosity,
+                max_turns=max_turns,
+                sub_llm_max_turns=sub_llm_max_turns,
+                max_sub_llm_parallelism=max_sub_llm_parallelism,
+            ),
+            max_turns=max_turns,
+            sub_llm_max_turns=sub_llm_max_turns,
+            max_sub_llm_parallelism=max_sub_llm_parallelism,
             pip_install_packages="",
             **kwargs,
         )
